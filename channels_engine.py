@@ -5,7 +5,7 @@ import requests
 import logger
 import sheets_client
 from scrapers import SCRAPER_PLUGINS
-from utils import DEFAULT_HEADERS, format_to_human_time, resolve_timezone, get_spreadsheet_name
+from utils import DEFAULT_HEADERS, get_spreadsheet_name
 
 # Build normalized plugin registry supporting PLUGIN_NAME and module name
 PLUGIN_REGISTRY = {}
@@ -22,6 +22,7 @@ _domain_cache: dict = {}            # {domain: {"status": "OK"|"NO"|"--"}}
 _p1_rules: list = []                # [(domain, quality_badge), ...] (loaded dynamically from Google Sheets)
 _domain_cache_dirty: bool = False   # True when any new probe result was written this run
 _pending_alerts: list = []          # "--" results waiting for end-of-run Telegram dispatch
+_new_probed_domains: set = set()    # Set of domains newly probed in this run
 _DYNAMIC_SANDBOX_ERRORS: list[str] = []
 
 # Timeouts in milliseconds for Playwright probing (configurable via env vars).
@@ -50,28 +51,26 @@ def get_sandbox_errors() -> list[str]:
 
 def init_domain_cache(client, spreadsheet_name: str = None) -> None:
     """Loads the _cache_domains sheet into memory at the start of the pipeline run."""
-    global _domain_cache, _p1_rules, _domain_cache_dirty, _pending_alerts
+    global _domain_cache, _p1_rules, _domain_cache_dirty, _pending_alerts, _new_probed_domains
     spreadsheet_name = (spreadsheet_name or get_spreadsheet_name()).strip()
     _domain_cache, _p1_rules, sandbox_errors = sheets_client.load_domain_cache(client, spreadsheet_name)
     set_sandbox_errors(sandbox_errors)
     _domain_cache_dirty = False
     _pending_alerts = []
+    _new_probed_domains = set()
 
-
-def set_p1_rules(rules: list) -> None:
-    """Sets dynamic P1 rules (useful for testing)."""
-    global _p1_rules
-    _p1_rules = list(rules)
 
 
 def flush_domain_cache(client, spreadsheet_name: str = None) -> None:
     """Writes the in-memory domain cache back to Sheets — only if a probe ran this run."""
-    global _domain_cache_dirty
+    global _domain_cache_dirty, _new_probed_domains
     if not _domain_cache_dirty:
         return
     spreadsheet_name = (spreadsheet_name or get_spreadsheet_name()).strip()
-    sheets_client.save_domain_cache(client, _domain_cache, spreadsheet_name)
+    new_count = len(_new_probed_domains)
+    sheets_client.save_domain_cache(client, _domain_cache, spreadsheet_name, new_count=new_count)
     _domain_cache_dirty = False
+    _new_probed_domains.clear()
 
 
 def get_pending_alerts() -> list:
@@ -409,12 +408,13 @@ def is_stream_playable(ch: dict, proxies: dict = None, match_context: dict = Non
         error_phrase = result.get("error_phrase", "")
 
         # Persist result to in-memory cache (flushed to Sheets at end of run).
-        global _domain_cache_dirty
+        global _domain_cache_dirty, _new_probed_domains
         if domain:
             _domain_cache[domain] = {
                 "status": probe_status,
             }
             _domain_cache_dirty = True
+            _new_probed_domains.add(domain)
 
         if probe_status == "NO":
             err_detail = f' - "{error_phrase}"' if error_phrase else ""
@@ -423,7 +423,6 @@ def is_stream_playable(ch: dict, proxies: dict = None, match_context: dict = Non
 
         if probe_status == "--":
             logger.success(f"Scraper: '{domain}' not blocked by sandbox.")
-            logger.success("Scraper: Telegram alert sent.")
             _pending_alerts.append({
                 "domain":       domain,
                 "url":          url,
@@ -432,10 +431,6 @@ def is_stream_playable(ch: dict, proxies: dict = None, match_context: dict = Non
                 "event_id":     (match_context or {}).get("event_id", ""),
                 "blog_post_id": (match_context or {}).get("blog_post_id", ""),
             })
-            return True
-
-        if probe_status == "OK":
-            logger.success(f"Scraper: '{domain}' not blocked by sandbox.")
             return True
 
     return True
@@ -547,7 +542,3 @@ def resolve_match_channels(
         ch["name"] = f"Live {idx}"
 
     return valid_channels
-
-
-# Alias for backward compatibility
-resolve_match_iframe = resolve_match_channels

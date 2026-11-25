@@ -2,7 +2,6 @@
 # Matches are parsed using the shared engine (matches.py).
 # Stream channels are routed strictly to explicit website sub-folders (e.g. sir_tv).
 # There is NO default/fallback channel extractor.
-from . import matches
 from . import sir_tv
 from .matches import can_handle, parse_matches
 

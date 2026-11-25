@@ -1,0 +1,67 @@
+{
+  "scenario_name": "Club vs National Collision Guards",
+  "description": "Tests prefix collision guards (المغرب التطواني != Morocco, منتخب السويس != National) and true international resolution (Slovenia vs Scotland).",
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "المغرب التطواني",
+      "team2_name": "نهضة بركان",
+      "team1_orig_img": "https://img.sofascore.com/teams/moghreb-tetouan.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/rs-berkane.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+1H",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Arryadia HD",
+          "server_name": "SNRT",
+          "type": "iframe",
+          "url": "https://snrt-live.test/arryadia"
+        }
+      ]
+    },
+    {
+      "team1_name": "منتخب السويس",
+      "team2_name": "الأهلي",
+      "team1_orig_img": "https://img.sofascore.com/teams/suez.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/ahly.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+2H",
+      "source_tz": "Africa/Cairo",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "OnTime Sports 1",
+          "server_name": "Egyptian Media",
+          "type": "iframe",
+          "url": "https://ontime.test/ch1"
+        }
+      ]
+    },
+    {
+      "team1_name": "سلوفينيا",
+      "team2_name": "إسكوتلندا",
+      "team1_orig_img": "https://flagcdn.com/si.svg",
+      "team2_orig_img": "https://flagcdn.com/gb-sct.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW-15M",
+      "source_tz": "UTC",
+      "status_class": "live",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "UEFA TV HD",
+          "server_name": "Primary",
+          "type": "iframe",
+          "url": "https://uefa.test/stream1"
+        }
+      ]
+    }
+  ]
+}

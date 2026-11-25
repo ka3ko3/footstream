@@ -269,7 +269,6 @@ def _format_channel_entry(entry: dict, idx: int, proxies: dict = None, prefix_ma
         return {
             "id": c_id, "name": c_name, "quality": "YouTube", "type": "iframe",
             "url": f"https://www.youtube.com/embed/{yt_id}?autoplay=1",
-            "sandbox": "allow-scripts allow-same-origin allow-presentation allow-forms",
         }
 
     if c_type == "ok":

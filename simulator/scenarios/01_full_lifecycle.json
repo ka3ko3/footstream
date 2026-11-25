@@ -1,0 +1,70 @@
+{
+  "scenario_name": "Full Matchday Lifecycle",
+  "description": "Tests all 4 match lifecycle stages: Live with streams, Starting Soon, Far Future, and Finished.",
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "ريال مدريد",
+      "team2_name": "برشلونة",
+      "date_str": "TODAY",
+      "time_str": "NOW-30M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "BeIN Sports 1 HD",
+          "server_name": "Server 1",
+          "type": "iframe",
+          "url": "https://stream-server1.test/live/embed1"
+        },
+        {
+          "name": "BeIN Sports 1 4K",
+          "server_name": "Server 2",
+          "type": "iframe",
+          "url": "https://stream-server2.test/live/embed2"
+        }
+      ]
+    },
+    {
+      "team1_name": "أرسنال",
+      "team2_name": "تشيلسي",
+      "date_str": "TODAY",
+      "time_str": "NOW+15M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Sky Sports Main Event",
+          "server_name": "Main",
+          "type": "iframe",
+          "url": "https://skysports.test/live/embed"
+        }
+      ]
+    },
+    {
+      "team1_name": "ليفربول",
+      "team2_name": "مانشستر سيتي",
+      "date_str": "TODAY",
+      "time_str": "NOW+4H",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": []
+    },
+    {
+      "team1_name": "بايرن ميونخ",
+      "team2_name": "بوروسيا دورتموند",
+      "date_str": "TODAY",
+      "time_str": "NOW-3H",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "finished",
+      "plugin": "footyy",
+      "channels": []
+    }
+  ]
+}

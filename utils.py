@@ -95,7 +95,6 @@ def load_env():
                     if key and key not in os.environ:
                         os.environ[key] = val
 
-load_env()
 
 def send_telegram_message(bot_token, chat_id, text):
     """Send a message via the Telegram Bot API. Returns True on success, False on failure."""
@@ -115,12 +114,6 @@ def configure_utf8():
     """Reconfigure stdout/stderr to use UTF-8 for proper Arabic text display."""
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
-
-def strip_timezone(time_str: str) -> str:
-    """Strips timezone offset (e.g. +01:00, -05:00, Z) from an ISO time string."""
-    if not time_str:
-        return ""
-    return re.sub(r'([+-]\d{2}:?\d{2}|Z)$', '', time_str.strip())
 
 def _ensure_utc(dt_val: datetime) -> datetime:
     """Ensures a datetime object is timezone-aware UTC."""
@@ -169,10 +162,6 @@ def get_now_utc() -> datetime:
     """Returns current UTC time as an aware datetime."""
     return datetime.now(timezone.utc)
 
-
-def get_now_local() -> datetime:
-    """Returns current time in DEFAULT_TIMEZONE as a naive datetime (for legacy compatibility)."""
-    return datetime.now(get_default_timezone()).replace(tzinfo=None)
 
 
 def parse_iso_time(time_str: str) -> datetime:
@@ -346,12 +335,12 @@ def get_match_expiry_grace_minutes() -> int:
 
 
 def get_match_default_duration_minutes() -> int:
-    """Returns MATCH_DEFAULT_DURATION_MINUTES env var as int (default 180)."""
+    """Returns MATCH_DEFAULT_DURATION_MINUTES env var as int (default 140)."""
     val = os.environ.get("MATCH_DEFAULT_DURATION_MINUTES", "").strip()
     try:
-        return int(val) if val else 180
+        return int(val) if val else 140
     except ValueError:
-        return 180
+        return 140
 
 
 def get_stream_glitch_grace_minutes() -> int:
@@ -566,7 +555,3 @@ class PipelineAbortError(Exception):
         super().__init__(reason)
         self.reason = reason
         self.details = details
-
-
-
-

@@ -1,10 +1,5 @@
 import sys
-import os
-import json
-import base64
 import argparse
-from urllib.parse import unquote
-from datetime import datetime, timezone
 
 from utils import (
     load_env,
@@ -20,7 +15,6 @@ from utils import (
     get_match_lookahead_hours,
     parse_user_styled_time,
     parse_iso_time,
-    resolve_timezone,
     get_now_utc,
     is_match_expired,
     is_match_starting_soon,
@@ -30,6 +24,7 @@ from utils import (
     PipelineAbortError,
     get_channels_count,
     is_valid_time,
+    get_match_default_duration_minutes,
 )
 
 load_env()
@@ -39,7 +34,7 @@ import cloudflare_client
 import logger
 import channels_engine
 import scraper_engine
-import translation_manager
+import team_engine
 import patcher
 from normalization import are_english_teams_equivalent, are_arabic_names_equivalent
 
@@ -149,7 +144,7 @@ def _persist_scraper_translations(client, spreadsheet_name: str, new_translation
         print()
         logger.info(f"Sheets: Saving {len(new_translations)} new translations back...")
         try:
-            translation_manager.save_new_team_translations_separated(client, new_translations, spreadsheet_name)
+            team_engine.save_new_team_translations_separated(client, new_translations, spreadsheet_name)
         except Exception as e:
             logger.error(f"Sheets: Error saving translations: {e}")
     if alias_updates:
@@ -158,7 +153,7 @@ def _persist_scraper_translations(client, spreadsheet_name: str, new_translation
             print()
             logger.info(f"Sheets: Saving {alias_only_count} alias update{'s' if alias_only_count != 1 else ''} back...")
         try:
-            translation_manager.update_team_aliases(client, alias_updates, spreadsheet_name)
+            team_engine.update_team_aliases(client, alias_updates, spreadsheet_name)
         except Exception as e:
             logger.error(f"Sheets: Error saving alias updates: {e}")
 
@@ -171,7 +166,7 @@ def scrape_matches_step(
     Step 2: Scrapes live matches from competitors, renders display preview, and persists translations.
     Returns (scraped_events, team_translations, updated_matches_cache).
     """
-    team_translations = translation_manager.load_team_translations(client, spreadsheet_name)
+    team_translations = team_engine.load_team_translations(client, spreadsheet_name)
     matches_cache = sheets_client.fetch_matches_cache(client, spreadsheet_name)
 
     try:
@@ -220,13 +215,8 @@ def scrape_matches_step(
 
 
 # ============================================================================
-# Step 3: Formatting & Syncing to Cloudflare KV and Google Sheets
+# Step 4: Formatting & Syncing to Cloudflare KV and Google Sheets
 # ============================================================================
-
-def _get_channels_count(channels_raw) -> int:
-    """Extracts channel count from raw list, JSON string, or Base64 payload."""
-    return get_channels_count(channels_raw)
-
 
 def assemble_matches_feed(matches_cache: dict) -> list[dict]:
     """Builds and sorts the standardized matches array for Cloudflare KV from matches_cache."""
@@ -249,7 +239,7 @@ def assemble_matches_feed(matches_cache: dict) -> list[dict]:
             continue
 
         raw_time = str(match.get("kickoff_time", "")).strip()
-        duration = int(match.get("duration", 140))
+        duration = int(match.get("duration") or get_match_default_duration_minutes())
 
         # Do not include expired matches (> 3 hours post-match TTL) in the feed
         if is_match_expired(raw_time, duration, now_dt, grace_minutes=180):
@@ -293,7 +283,7 @@ def assemble_matches_feed(matches_cache: dict) -> list[dict]:
             },
             "time": time_iso,
             "duration": duration,
-            "channels": _get_channels_count(match.get("channels", "")),
+            "channels": get_channels_count(match.get("channels", "")),
             "ended": is_ended,
             "_status_class": status_class,
         })
@@ -345,7 +335,7 @@ def assemble_channels_map(matches_cache: dict) -> dict[str, list[dict]]:
 
     for ev_id, match in matches_cache.items():
         raw_time = str(match.get("kickoff_time", "")).strip()
-        duration = int(match.get("duration", 140))
+        duration = int(match.get("duration") or get_match_default_duration_minutes())
         if is_match_expired(raw_time, duration, now_dt, grace_minutes=180):
             continue
 
@@ -602,7 +592,6 @@ def main():
             sys.exit(0 if ok else 1)
 
         # Step 1: Verifying services
-        print()
         logger.step_header("1/4", "Verifying Services")
         client = _init_clients()
         print()
@@ -610,8 +599,18 @@ def main():
 
         # Step 2: Scraping matches (and inside: Step 3: Resolving Streams)
         logger.step_header("2/4", "Scraping Matches")
-        scraped_events, team_translations, matches_cache = scrape_matches_step(
+        _, _, matches_cache = scrape_matches_step(
             client, args.sheet
+        )
+
+        # Flush any new domain validator results to the _cache_domains sheet immediately after stream probing.
+        channels_engine.flush_domain_cache(client, args.sheet)
+
+        # Send one batch Telegram alert for all '--' (inconclusive) domains discovered during stream probing.
+        _send_domain_alerts(
+            channels_engine.get_pending_alerts(),
+            telegram_token,
+            allowed_chat_ids,
         )
 
         # Step 4: Syncing to Cloudflare
@@ -619,16 +618,6 @@ def main():
         sync_data_step(
             client, args.sheet, matches_cache,
             CLOUDFLARE_API_URL, CLOUDFLARE_SYNC_TOKEN
-        )
-
-        # Flush any new domain validator results to the _cache_domains sheet.
-        channels_engine.flush_domain_cache(client, args.sheet)
-
-        # Send one batch Telegram alert for all '--' (inconclusive) domains discovered this run.
-        _send_domain_alerts(
-            channels_engine.get_pending_alerts(),
-            telegram_token,
-            allowed_chat_ids,
         )
         print()
         print()
@@ -654,4 +643,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print()
     main()

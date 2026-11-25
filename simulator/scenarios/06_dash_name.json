@@ -1,0 +1,44 @@
+{
+  "description": "Test AL, en, em dashes strip",
+  "probe_channels": true,
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "كونغو–برازافيل",
+      "team2_name": "جزر سيشل",
+      "date_str": "TODAY",
+      "time_str": "22:00",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Sky Sports Main Event",
+          "server_name": "Main",
+          "type": "iframe",
+          "url": "https://tivivi-pla.blogspot.com/?match=congo-vs-seychelles-30-09-2026"
+        }
+      ]
+    },
+	{
+      "team1_name": "إسرائيل",
+      "team2_name": "سريلانكا",
+      "date_str": "TODAY",
+      "time_str": "NOW",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Sky Sports Main Event",
+          "server_name": "Main",
+          "type": "iframe",
+          "url": "https://tivivi-pla.blogspot.com/?match=congo-vs-seychelles-30-09-2026"
+        }
+      ]
+    }
+  ]
+}

@@ -5,3 +5,4 @@ beautifulsoup4
 cryptography
 playwright
 tldextract
+curl_cffi

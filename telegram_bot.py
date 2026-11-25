@@ -13,15 +13,14 @@ from utils import (
     get_cloudflare_api_url,
     get_match_player_url,
     format_to_human_time,
-    get_status_priority,
-    parse_iso_time
+    get_match_default_duration_minutes,
 )
 
 load_env()
 
 import sheets_client
 import scraper_engine
-import translation_manager
+import team_engine
 import logger
 import patcher
 from run_pipeline import run_sync, assemble_matches_feed, assemble_channels_map
@@ -77,7 +76,7 @@ def _handle_end_command(arg: str, chat_id: int, bot_token: str, spreadsheet_name
     if clients["sheets"] is None:
         clients["sheets"] = sheets_client.get_gspread_client()
 
-    team_translations = translation_manager.load_team_translations(clients["sheets"], spreadsheet_name)
+    team_translations = team_engine.load_team_translations(clients["sheets"], spreadsheet_name)
     matches_cache = sheets_client.fetch_matches_cache(clients["sheets"], spreadsheet_name)
 
     scraped_events, _, _, _ = scraper_engine.scrape_live_matches(
@@ -117,7 +116,7 @@ def _handle_end_command(arg: str, chat_id: int, bot_token: str, spreadsheet_name
             "link": get_match_player_url(event_id),
             "channels": ch_payload,
             "kickoff_time": kickoff_time,
-            "duration": int(found_match.get("duration", 140)),
+            "duration": int(found_match.get("duration") or get_match_default_duration_minutes()),
             "status_class": "finished",
             "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         }

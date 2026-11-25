@@ -1,0 +1,42 @@
+{
+  "scenario_name": "Domain Validation & Stream Probing",
+  "description": "Tests handling of verified vs unverified stream domains and dynamic channel priority.",
+  "probe_channels": true,
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "يوفنتوس",
+      "team2_name": "ميلان",
+      "team1_orig_img": "https://img.sofascore.com/teams/juventus.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/milan.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-10M",
+      "source_tz": "Europe/Rome",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Sky Sport Serie A (P1 Verified)",
+          "server_name": "Server 1",
+          "type": "iframe",
+          "url": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+        },
+        {
+          "name": "DAZN 1 Bar HD (Unverified Candidate)",
+          "server_name": "Server 2",
+          "type": "iframe",
+          "url": "https://example.com"
+        },
+        {
+          "name": "SuperSport 3 (Blocked Stream)",
+          "server_name": "Server 3",
+          "type": "iframe",
+          "url": "https://github.com"
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import os
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 import logger
@@ -8,11 +8,11 @@ from utils import (
     format_to_human_time,
     parse_user_styled_time,
     get_now_utc,
-    resolve_timezone,
     is_match_expired,
     get_spreadsheet_name,
     get_match_player_url,
     is_valid_time,
+    get_match_default_duration_minutes,
 )
 
 SCOPES = [
@@ -131,11 +131,11 @@ def fetch_matches_cache(client, spreadsheet_name: str = None) -> dict:
             channels = ""
         k_time = padded_row[header_map["kickoff_time"]].strip() if "kickoff_time" in header_map else ""
 
-        duration_raw = padded_row[header_map["duration"]].strip() if "duration" in header_map else "180"
+        duration_raw = padded_row[header_map["duration"]].strip() if "duration" in header_map else ""
         try:
-            duration = int(duration_raw) if duration_raw else 180
+            duration = int(duration_raw) if duration_raw else get_match_default_duration_minutes()
         except ValueError:
-            duration = 180
+            duration = get_match_default_duration_minutes()
 
         s_class = padded_row[header_map["status_class"]].strip().lower() if "status_class" in header_map else "upcoming"
         if s_class not in ["live", "upcoming", "finished"]:
@@ -187,7 +187,7 @@ def _filter_valid_cache_rows(matches_cache: dict, now: datetime, now_local_str: 
     valid_cache_rows = []
     for event_id, data in matches_cache.items():
         k_time = data.get("kickoff_time", "")
-        duration = int(data.get("duration", 180))
+        duration = int(data.get("duration") or get_match_default_duration_minutes())
 
         # Check if match has passed its 3-hour post-game retention window
         if is_match_expired(k_time, duration, now, grace_minutes=180):
@@ -256,7 +256,7 @@ def save_matches_cache(client, matches_cache: dict, spreadsheet_name: str = None
     expired_ids = []
     for ev_id, data in matches_cache.items():
         k_time = data.get("kickoff_time", "")
-        duration = int(data.get("duration", 180))
+        duration = int(data.get("duration") or get_match_default_duration_minutes())
         if is_match_expired(k_time, duration, now, grace_minutes=180):
             expired_ids.append(ev_id)
 
@@ -385,7 +385,7 @@ def load_domain_cache(client: gspread.Client, spreadsheet_name: str = None) -> t
     return domain_cache, p1_rules, sandbox_errors
 
 
-def save_domain_cache(client: gspread.Client, cache: dict, spreadsheet_name: str = None) -> None:
+def save_domain_cache(client: gspread.Client, cache: dict, spreadsheet_name: str = None, new_count: int = None) -> None:
     """Updates only the domain status columns (A and B) in '_cache_domains'.
     Strictly preserves all other columns (p1_domain, p1_quality, p1_sandbox, sandbox_errors).
     """
@@ -407,5 +407,11 @@ def save_domain_cache(client: gspread.Client, cache: dict, spreadsheet_name: str
     if rows:
         range_label = f"A2:B{len(rows) + 1}"
         worksheet.update(range_label, rows)
-    logger.success(f"Sheets: Saved {len(rows)} domain entries to '{_DOMAIN_CACHE_SHEET}'.")
+
+    if new_count is not None:
+        dom_str = "domain" if new_count == 1 else "domains"
+        logger.success(f"Sheets: Saved {new_count} new {dom_str} to '{_DOMAIN_CACHE_SHEET}'.")
+    else:
+        dom_str = "domain entry" if len(rows) == 1 else "domain entries"
+        logger.success(f"Sheets: Saved {len(rows)} {dom_str} to '{_DOMAIN_CACHE_SHEET}'.")
 

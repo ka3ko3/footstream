@@ -1,0 +1,60 @@
+{
+  "scenario_name": "Duplicate Merging & Max Channels",
+  "description": "Tests multi-source deduplication of the same match (Man United vs Liverpool) with alias names and picks the maximum channel count.",
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "مانشستر يونايتد",
+      "team2_name": "ليفربول",
+      "team1_orig_img": "https://img.sofascore.com/teams/man-utd.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/liverpool.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-15M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "BeIN 1",
+          "server_name": "Main",
+          "type": "iframe",
+          "url": "https://server1.test/live"
+        }
+      ]
+    },
+    {
+      "team1_name": "مان يونايتد",
+      "team2_name": "ليفربول",
+      "team1_orig_img": "https://img.sofascore.com/teams/man-utd.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/liverpool.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-15M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "Live Server A",
+          "server_name": "A",
+          "type": "iframe",
+          "url": "https://serverA.test/live"
+        },
+        {
+          "name": "Live Server B",
+          "server_name": "B",
+          "type": "iframe",
+          "url": "https://serverB.test/live"
+        },
+        {
+          "name": "Live Server C",
+          "server_name": "C",
+          "type": "iframe",
+          "url": "https://serverC.test/live"
+        }
+      ]
+    }
+  ]
+}

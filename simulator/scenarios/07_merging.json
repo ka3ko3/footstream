@@ -1,0 +1,44 @@
+{
+  "description": "Test Merging across Footyy and YallaShoot",
+  "probe_channels": false,
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "المغرب التطواني",
+      "team2_name": "مولودية وهران",
+      "date_str": "TODAY",
+      "time_str": "22:00",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Footyy Stream 1",
+          "server_name": "Main",
+          "type": "iframe",
+          "url": "https://server1.test/live"
+        }
+      ]
+    },
+    {
+      "team1_name": "المغرب التطواني",
+      "team2_name": "مولودية وهران",
+      "date_str": "TODAY",
+      "time_str": "22:00",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "YallaShoot Stream 2",
+          "server_name": "Backup",
+          "type": "iframe",
+          "url": "https://server2.test/live"
+        }
+      ]
+    }
+  ]
+}

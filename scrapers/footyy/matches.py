@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
 import logger
-from utils import DEFAULT_HEADERS
+from utils import DEFAULT_HEADERS, get_match_default_duration_minutes
 from scrapers.exceptions import ScraperPluginError
 
 
@@ -118,7 +118,7 @@ def parse_matches(soup: BeautifulSoup, source_url: str, default_date: str, sourc
         t2_img = team2.get("img", "")
 
         time_raw = m.get("time", "")
-        duration = int(m.get("duration") or 130)
+        duration = int(m.get("duration") or get_match_default_duration_minutes())
         ended = bool(m.get("ended", False))
 
         date_str, time_str = _parse_iso_match_time(time_raw, default_date)

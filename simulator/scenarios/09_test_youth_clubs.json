@@ -1,0 +1,55 @@
+{
+  "description": "Comprehensive 2-match fixture simulating.",
+  "probe_channels": false,
+  "live_test": false,
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "المغرب التطواني تحت 23",
+      "team2_name": "مصر الأولمبي",
+      "team1_orig_img": "https://flagcdn.com/ma.svg",
+      "team2_orig_img": "https://flagcdn.com/eg.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW-20M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Arryadia HD",
+          "server_name": "Server 1",
+          "type": "iframe",
+          "url": "https://snrt-live.test/arryadia-live"
+        },
+        {
+          "name": "OnTime Sports 1",
+          "server_name": "Server 2",
+          "type": "iframe",
+          "url": "https://ontime.test/ch1"
+        }
+      ]
+    },
+    {
+      "team1_name": "فرنسا تحت 21",
+      "team2_name": "إسبانيا تحت 21",
+      "team1_orig_img": "https://flagcdn.com/fr.svg",
+      "team2_orig_img": "https://flagcdn.com/es.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW+45M",
+      "source_tz": "Europe/Paris",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "beIN Sports 2 HD",
+          "server_name": "UEFA Stream",
+          "type": "iframe",
+          "url": "https://bein.test/live2"
+        }
+      ]
+    }
+  ]
+}

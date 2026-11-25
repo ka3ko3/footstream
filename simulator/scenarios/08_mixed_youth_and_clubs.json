@@ -1,0 +1,404 @@
+{
+  "scenario_name": "Mixed Youth National and Global Club Matches",
+  "description": "Comprehensive 20-match fixture simulating a full matchday: 8 youth/category international teams (U23, U21, U20, U19, Olympic, Women) alongside 12 premier European and Arab club derbies.",
+  "probe_channels": false,
+  "live_test": false,
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": true
+  },
+  "matches": [
+    {
+      "team1_name": "المغرب تحت 23",
+      "team2_name": "مصر الأولمبي",
+      "team1_orig_img": "https://flagcdn.com/ma.svg",
+      "team2_orig_img": "https://flagcdn.com/eg.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW-20M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Arryadia HD",
+          "server_name": "Server 1",
+          "type": "iframe",
+          "url": "https://snrt-live.test/arryadia-live"
+        },
+        {
+          "name": "OnTime Sports 1",
+          "server_name": "Server 2",
+          "type": "iframe",
+          "url": "https://ontime.test/ch1"
+        }
+      ]
+    },
+    {
+      "team1_name": "فرنسا تحت 21",
+      "team2_name": "إسبانيا تحت 21",
+      "team1_orig_img": "https://flagcdn.com/fr.svg",
+      "team2_orig_img": "https://flagcdn.com/es.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW+45M",
+      "source_tz": "Europe/Paris",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "beIN Sports 2 HD",
+          "server_name": "UEFA Stream",
+          "type": "iframe",
+          "url": "https://bein.test/live2"
+        }
+      ]
+    },
+    {
+      "team1_name": "تونس للشباب",
+      "team2_name": "الجزائر تحت 20",
+      "team1_orig_img": "https://flagcdn.com/tn.svg",
+      "team2_orig_img": "https://flagcdn.com/dz.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW+2H",
+      "source_tz": "Africa/Tunis",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Al Kass 1 HD",
+          "server_name": "Primary",
+          "type": "iframe",
+          "url": "https://alkass.test/ch1"
+        }
+      ]
+    },
+    {
+      "team1_name": "سيدات المغرب",
+      "team2_name": "سيدات نيجيريا",
+      "team1_orig_img": "https://flagcdn.com/ma.svg",
+      "team2_orig_img": "https://flagcdn.com/ng.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW-40M",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Arryadia HD",
+          "server_name": "SNRT 1",
+          "type": "iframe",
+          "url": "https://snrt-live.test/arryadia"
+        }
+      ]
+    },
+    {
+      "team1_name": "إنجلترا تحت 19",
+      "team2_name": "ألمانيا تحت 19",
+      "team1_orig_img": "https://flagcdn.com/gb-eng.svg",
+      "team2_orig_img": "https://flagcdn.com/de.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW+1H",
+      "source_tz": "Europe/London",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "UEFA TV",
+          "server_name": "Live Feed",
+          "type": "iframe",
+          "url": "https://uefa.test/u19-live"
+        }
+      ]
+    },
+    {
+      "team1_name": "البرازيل الأولمبي",
+      "team2_name": "الأرجنتين الأولمبي",
+      "team1_orig_img": "https://flagcdn.com/br.svg",
+      "team2_orig_img": "https://flagcdn.com/ar.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW+3H",
+      "source_tz": "America/Sao_Paulo",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "SporTV 1",
+          "server_name": "CONMEBOL",
+          "type": "iframe",
+          "url": "https://sportv.test/stream1"
+        }
+      ]
+    },
+    {
+      "team1_name": "اليابان تحت 23",
+      "team2_name": "كوريا الجنوبية تحت 23",
+      "team1_orig_img": "https://flagcdn.com/jp.svg",
+      "team2_orig_img": "https://flagcdn.com/kr.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW-10M",
+      "source_tz": "Asia/Tokyo",
+      "status_class": "live",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "beIN Sports AFC",
+          "server_name": "AFC 1",
+          "type": "iframe",
+          "url": "https://bein.test/afc1"
+        }
+      ]
+    },
+    {
+      "team1_name": "السعودية تحت 23",
+      "team2_name": "العراق تحت 23",
+      "team1_orig_img": "https://flagcdn.com/sa.svg",
+      "team2_orig_img": "https://flagcdn.com/iq.svg",
+      "date_str": "TODAY",
+      "time_str": "NOW+150M",
+      "source_tz": "Asia/Riyadh",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "SSC 1 HD",
+          "server_name": "KSA Sports",
+          "type": "iframe",
+          "url": "https://ssc.test/ch1"
+        }
+      ]
+    },
+    {
+      "team1_name": "ريال مدريد",
+      "team2_name": "برشلونة",
+      "team1_orig_img": "https://img.sofascore.com/teams/real-madrid.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/barcelona.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-30M",
+      "source_tz": "Europe/Madrid",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "beIN Sports 1 HD",
+          "server_name": "Clasico 1",
+          "type": "iframe",
+          "url": "https://stream.test/clasico-hd"
+        },
+        {
+          "name": "beIN Sports 1 4K",
+          "server_name": "Clasico 4K",
+          "type": "iframe",
+          "url": "https://stream.test/clasico-4k"
+        }
+      ]
+    },
+    {
+      "team1_name": "مانشستر سيتي",
+      "team2_name": "ليفربول",
+      "team1_orig_img": "https://img.sofascore.com/teams/man-city.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/liverpool.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-15M",
+      "source_tz": "Europe/London",
+      "status_class": "live",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "Sky Sports Premier League",
+          "server_name": "Sky UK",
+          "type": "iframe",
+          "url": "https://sky.test/epl-main"
+        }
+      ]
+    },
+    {
+      "team1_name": "أرسنال",
+      "team2_name": "تشيلسي",
+      "team1_orig_img": "https://img.sofascore.com/teams/arsenal.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/chelsea.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+90M",
+      "source_tz": "Europe/London",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "beIN Sports 2 HD",
+          "server_name": "Server 1",
+          "type": "iframe",
+          "url": "https://bein.test/epl2"
+        }
+      ]
+    },
+    {
+      "team1_name": "بايرن ميونخ",
+      "team2_name": "بوروسيا دورتموند",
+      "team1_orig_img": "https://img.sofascore.com/teams/bayern.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/dortmund.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+2H",
+      "source_tz": "Europe/Berlin",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "Sky Bundesliga HD",
+          "server_name": "Sky DE",
+          "type": "iframe",
+          "url": "https://skyde.test/buli1"
+        }
+      ]
+    },
+    {
+      "team1_name": "باريس سان جيرمان",
+      "team2_name": "مارسيليا",
+      "team1_orig_img": "https://img.sofascore.com/teams/psg.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/marseille.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+3H",
+      "source_tz": "Europe/Paris",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "beIN Sports 4 HD",
+          "server_name": "Ligue 1",
+          "type": "iframe",
+          "url": "https://bein.test/fr1"
+        }
+      ]
+    },
+    {
+      "team1_name": "إنتر ميلان",
+      "team2_name": "يوفنتوس",
+      "team1_orig_img": "https://img.sofascore.com/teams/inter.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/juventus.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+1H",
+      "source_tz": "Europe/Rome",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "Abu Dhabi Sports 1 Premium",
+          "server_name": "AD Sports",
+          "type": "iframe",
+          "url": "https://adsports.test/seriea1"
+        }
+      ]
+    },
+    {
+      "team1_name": "ميلان",
+      "team2_name": "روما",
+      "team1_orig_img": "https://img.sofascore.com/teams/milan.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/roma.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+4H",
+      "source_tz": "Europe/Rome",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Abu Dhabi Sports 2 Premium",
+          "server_name": "AD Sports",
+          "type": "iframe",
+          "url": "https://adsports.test/seriea2"
+        }
+      ]
+    },
+    {
+      "team1_name": "الأهلي",
+      "team2_name": "الزمالك",
+      "team1_orig_img": "https://img.sofascore.com/teams/ahly.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/zamalek.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-5M",
+      "source_tz": "Africa/Cairo",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "OnTime Sports 1 HD",
+          "server_name": "Cairo Live",
+          "type": "iframe",
+          "url": "https://ontime.test/derby-live"
+        }
+      ]
+    },
+    {
+      "team1_name": "الوداد الرياضي",
+      "team2_name": "الرجاء الرياضي",
+      "team1_orig_img": "https://img.sofascore.com/teams/wydad.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/raja.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+2H",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Arryadia HD",
+          "server_name": "SNRT Derby",
+          "type": "iframe",
+          "url": "https://snrt-live.test/casablanca-derby"
+        }
+      ]
+    },
+    {
+      "team1_name": "الهلال",
+      "team2_name": "النصر",
+      "team1_orig_img": "https://img.sofascore.com/teams/hilal.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/nassr.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+90M",
+      "source_tz": "Asia/Riyadh",
+      "status_class": "upcoming",
+      "plugin": "yallashoot",
+      "channels": [
+        {
+          "name": "SSC 1 HD",
+          "server_name": "Riyadh Derby",
+          "type": "iframe",
+          "url": "https://ssc.test/derby1"
+        }
+      ]
+    },
+    {
+      "team1_name": "الترجي التونسي",
+      "team2_name": "النجم الساحلي",
+      "team1_orig_img": "https://img.sofascore.com/teams/esperance.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/etoile.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+3H",
+      "source_tz": "Africa/Tunis",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Al Wataniya 1",
+          "server_name": "Tunis TV",
+          "type": "iframe",
+          "url": "https://watania.test/ch1"
+        }
+      ]
+    },
+    {
+      "team1_name": "المغرب التطواني",
+      "team2_name": "نهضة بركان",
+      "team1_orig_img": "https://img.sofascore.com/teams/moghreb-tetouan.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/rs-berkane.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+5H",
+      "source_tz": "Africa/Casablanca",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Arryadia HD",
+          "server_name": "SNRT 2",
+          "type": "iframe",
+          "url": "https://snrt-live.test/botola"
+        }
+      ]
+    }
+  ]
+}

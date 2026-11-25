@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import html
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import requests
@@ -11,7 +12,6 @@ from utils import (
     get_allowed_chat_ids,
     get_telegram_bot_token,
     broadcast_telegram,
-    strip_timezone,
     parse_match_time,
     parse_user_styled_time,
     format_to_human_time,
@@ -32,7 +32,7 @@ from utils import (
     is_valid_time,
 )
 
-from translation_manager import find_existing_translation, resolve_missing_teams
+from team_engine import find_existing_translation, resolve_missing_teams
 import channels_engine
 from channels_engine import resolve_match_channels
 import patcher
@@ -41,6 +41,7 @@ from normalization import (
     are_arabic_names_equivalent,
     are_english_teams_equivalent,
     slugify_team_name,
+    detect_match_type,
 )
 
 # Parse SCRAPER_URLS from environment variable into (url, source_tz) tuples
@@ -107,19 +108,9 @@ def migrate_matches_cache_translations(matches_cache: dict, team_translations: d
         if not t1_ar and not t2_ar:
             continue
 
-        t1_info = find_existing_translation(t1_ar, team_translations) if t1_ar else None
-        t2_info = find_existing_translation(t2_ar, team_translations) if t2_ar else None
-
-        # Cross-type guard: Clubs and National teams cannot play each other
-        if t1_info and t2_info:
-            t1_is_club = t1_info.get("type") == "club" and t1_info.get("nameEn") not in ("Unknown", "", None)
-            t2_is_club = t2_info.get("type") == "club" and t2_info.get("nameEn") not in ("Unknown", "", None)
-            t1_is_nat = t1_info.get("type") == "national" or bool(t1_info.get("code"))
-            t2_is_nat = t2_info.get("type") == "national" or bool(t2_info.get("code"))
-            if t1_is_club and t2_is_nat:
-                t2_info = {"nameEn": "Unknown", "code": "", "type": "club", "primary_arabic": t2_ar, "logo_url": ""}
-            elif t2_is_club and t1_is_nat:
-                t1_info = {"nameEn": "Unknown", "code": "", "type": "club", "primary_arabic": t1_ar, "logo_url": ""}
+        is_nat = detect_match_type(t1_ar, t2_ar)
+        t1_info = find_existing_translation(t1_ar, team_translations, is_national=is_nat) if t1_ar else None
+        t2_info = find_existing_translation(t2_ar, team_translations, is_national=is_nat) if t2_ar else None
 
         t1_en = t1_info.get("nameEn", "") if t1_info else cached_match.get("team1_en", "")
         t2_en = t2_info.get("nameEn", "") if t2_info else cached_match.get("team2_en", "")
@@ -300,9 +291,8 @@ def _is_duplicate_raw_match(match_data: dict, existing_matches: list) -> bool:
     return False
 
 
-def _fetch_and_parse_urls(urls_to_scrape: list) -> tuple[list, set, dict]:
+def _fetch_and_parse_urls(urls_to_scrape: list) -> tuple[list, dict]:
     matches_to_process = []
-    unique_team_names = set()
     errors = []
     plugin_health = {}
 
@@ -321,22 +311,22 @@ def _fetch_and_parse_urls(urls_to_scrape: list) -> tuple[list, set, dict]:
 
         site_matches = []
         for match_data in raw_matches:
-            t1 = match_data["team1_name"].strip()
-            t2 = match_data["team2_name"].strip()
+            match_data["team1_name"] = html.unescape(match_data.get("team1_name", "")).strip()
+            match_data["team2_name"] = html.unescape(match_data.get("team2_name", "")).strip()
+            t1 = match_data["team1_name"]
+            t2 = match_data["team2_name"]
 
             # Deduplicate multiple occurrences within the same website page
             if _is_duplicate_raw_match(match_data, site_matches):
                 continue
 
             site_matches.append(match_data)
-            unique_team_names.add(t1)
-            unique_team_names.add(t2)
             matches_to_process.append(match_data)
 
     if not matches_to_process and errors:
         raise ConnectionError("; ".join(errors))
 
-    return matches_to_process, unique_team_names, plugin_health
+    return matches_to_process, plugin_health
 
 
 
@@ -344,18 +334,6 @@ def _build_match_event(match_data: dict, team_translations: dict, matches_cache:
     t1_name, t2_name = match_data["team1_name"], match_data["team2_name"]
     t1_info = team_translations.get(t1_name) or {"nameEn": "Unknown", "code": "", "type": "club"}
     t2_info = team_translations.get(t2_name) or {"nameEn": "Unknown", "code": "", "type": "club"}
-
-    # Cross-type guard: Clubs and National teams cannot play each other
-    t1_is_club = t1_info.get("type") == "club" and t1_info.get("nameEn") not in ("Unknown", "", None)
-    t2_is_club = t2_info.get("type") == "club" and t2_info.get("nameEn") not in ("Unknown", "", None)
-    t1_is_nat = t1_info.get("type") == "national" or bool(t1_info.get("code"))
-    t2_is_nat = t2_info.get("type") == "national" or bool(t2_info.get("code"))
-    if t1_is_club and t2_is_nat:
-        logger.warning(f"Translation: Cross-type collision '{t1_name}' (Club) vs '{t2_name}' (National). Demoting '{t2_name}' to club.")
-        t2_info = {"nameEn": "Unknown", "code": "", "type": "club", "primary_arabic": t2_name, "logo_url": ""}
-    elif t2_is_club and t1_is_nat:
-        logger.warning(f"Translation: Cross-type collision '{t1_name}' (National) vs '{t2_name}' (Club). Demoting '{t1_name}' to club.")
-        t1_info = {"nameEn": "Unknown", "code": "", "type": "club", "primary_arabic": t1_name, "logo_url": ""}
 
     team1_en = t1_info.get("nameEn", "")
     team2_en = t2_info.get("nameEn", "")
@@ -685,7 +663,7 @@ def _process_matches(
                         ev_human = format_to_human_time(ev_k)
                         c_dt = parse_user_styled_time(c_k)
                         ev_dt = parse_user_styled_time(ev_k)
-                        time_matches = (c_k and (c_k == ev_human or c_k == ev_k)) or (
+                        time_matches = (c_k and c_k == ev_human) or (
                             is_valid_time(c_dt) and is_valid_time(ev_dt) and c_dt == ev_dt
                         )
                         if time_matches:
@@ -721,7 +699,7 @@ def _process_matches(
         for ev_id, cached_entry in matches_cache.items():
             if ev_id not in updated_matches_cache:
                 k_time = cached_entry.get("kickoff_time", "")
-                duration = int(cached_entry.get("duration", get_match_default_duration_minutes()))
+                duration = int(cached_entry.get("duration") or get_match_default_duration_minutes())
                 if is_match_expired(k_time, duration, now_dt):
                     continue
 
@@ -786,7 +764,7 @@ def scrape_live_matches(
         logger.error("SCRAPER_URLS environment variable is not set. Cannot run competitor scraper.")
         return [], [], {}, []
 
-    matches_to_process, unique_team_names, plugin_health = _fetch_and_parse_urls(SCRAPER_URLS)
+    matches_to_process, plugin_health = _fetch_and_parse_urls(SCRAPER_URLS)
     if not matches_to_process:
         return [], [], {}, []
 
@@ -797,12 +775,24 @@ def scrape_live_matches(
     print()
 
     missing_team_names = []
-    for name in unique_team_names:
-        existing = find_existing_translation(name, team_translations)
-        if existing:
-            team_translations[name] = existing
-        else:
-            missing_team_names.append(name)
+    processed_teams = set()
+    for m in matches_to_process:
+        m["team1_name"] = html.unescape(m.get("team1_name", "")).strip()
+        m["team2_name"] = html.unescape(m.get("team2_name", "")).strip()
+        t1 = m["team1_name"]
+        t2 = m["team2_name"]
+        if not t1 and not t2:
+            continue
+        is_nat = detect_match_type(t1, t2)
+        for t_name in (t1, t2):
+            if not t_name or t_name in processed_teams:
+                continue
+            processed_teams.add(t_name)
+            existing = find_existing_translation(t_name, team_translations, is_national=is_nat)
+            if existing:
+                team_translations[t_name] = existing
+            else:
+                missing_team_names.append(t_name)
 
     new_translations_list, alias_updates = resolve_missing_teams(missing_team_names, team_translations, matches_to_process)
 
@@ -815,11 +805,11 @@ def scrape_live_matches(
             img = sanitize_sheet_image_url(orig_img)
             if not t_name or not img:
                 continue
-            team = find_existing_translation(t_name, team_translations)
-            if team and team.get("type") != "national":
+            team = find_existing_translation(t_name, team_translations, is_national=False)
+            if team and team.get("type") == "club" and team.get("sheet_name") == "_cache_clubs":
                 if team.get("logo_url") != img:
                     team["logo_url"] = img
-                    if team.get("row_num") and team.get("sheet_name"):
+                    if team.get("row_num"):
                         alias_updates.append((team["row_num"], team["sheet_name"], 5, img))
 
     # Re-evaluate cached matches with updated translations and purge duplicate IDs
@@ -835,5 +825,3 @@ def scrape_live_matches(
     )
 
     return parsed_matches, new_translations_list, updated_matches_cache, alias_updates
-
-

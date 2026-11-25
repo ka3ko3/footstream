@@ -1,0 +1,48 @@
+{
+  "scenario_name": "Scraper Glitch & Resilience",
+  "description": "Tests pipeline resilience when one competitor plugin crashes (Footyy OK, YallaShoot DOWN).",
+  "plugin_health": {
+    "footyy": true,
+    "yallashoot": false
+  },
+  "matches": [
+    {
+      "team1_name": "مانشستر سيتي",
+      "team2_name": "إنتر ميلان",
+      "team1_orig_img": "https://img.sofascore.com/teams/man-city.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/inter.png",
+      "date_str": "TODAY",
+      "time_str": "NOW-20M",
+      "source_tz": "Europe/London",
+      "status_class": "live",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "TNT Sports 1",
+          "server_name": "UK Server",
+          "type": "iframe",
+          "url": "https://tnt-sports.test/live1"
+        }
+      ]
+    },
+    {
+      "team1_name": "باريس سان جيرمان",
+      "team2_name": "أتلتيكو مدريد",
+      "team1_orig_img": "https://img.sofascore.com/teams/psg.png",
+      "team2_orig_img": "https://img.sofascore.com/teams/atletico.png",
+      "date_str": "TODAY",
+      "time_str": "NOW+45M",
+      "source_tz": "Europe/Paris",
+      "status_class": "upcoming",
+      "plugin": "footyy",
+      "channels": [
+        {
+          "name": "Canal+ Sport HD",
+          "server_name": "France 1",
+          "type": "iframe",
+          "url": "https://canalplus.test/live"
+        }
+      ]
+    }
+  ]
+}

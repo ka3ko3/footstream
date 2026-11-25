@@ -1,3 +1,4 @@
+import os
 import re
 import sys
 import time
@@ -12,13 +13,8 @@ if _pipeline_dir not in sys.path:
 
 from normalization import are_arabic_names_equivalent, are_english_teams_equivalent
 
-PROXIES = [
-    "http://uxtwitfy:1ueyvpq3eh8k@64.137.96.74:6641",   # Spain - Madrid (Primary)
-    "http://uxtwitfy:1ueyvpq3eh8k@198.105.121.200:6462", # UK - London
-    "http://uxtwitfy:1ueyvpq3eh8k@45.38.107.97:6014",    # UK - London
-    "http://uxtwitfy:1ueyvpq3eh8k@31.59.20.176:6754",    # UK - London
-    "http://uxtwitfy:1ueyvpq3eh8k@142.111.67.146:5611",  # Japan - Tokyo
-]
+_env_proxies = os.environ.get("SOFASCORE_PROXIES", "").strip()
+PROXIES = [p.strip() for p in _env_proxies.split(",") if p.strip()] if _env_proxies else []
 
 DEFAULT_HEADERS = {
     "authority": "www.sofascore.com",
