@@ -1,6 +1,8 @@
+import base64
 import re
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
+import logger
 from scrapers.exceptions import ScraperPluginError
 
 # Status class names shared across both variants
@@ -148,6 +150,26 @@ def _extract_match_date(match, link_elem, default_date: str) -> str:
     return default_date
 
 
+def _extract_match_url(match, source_url: str) -> tuple:
+    """Extracts (link_elem, match_url), decoding base64 data-spoof-b when spoof-gating is active."""
+    link_elem = match.find("a", href=True) or match.select_one("a[data-spoof-b]")
+    if not link_elem:
+        return None, ""
+
+    spoof_b = (link_elem.get("data-spoof-b") or "").strip()
+    if spoof_b:
+        try:
+            padded = spoof_b + "=" * (-len(spoof_b) % 4)
+            decoded = base64.b64decode(padded).decode("utf-8", errors="strict").strip()
+            if decoded.startswith(("http://", "https://")):
+                return link_elem, decoded
+        except Exception as e:
+            logger.warning(f"YallaShoot: Failed to decode data-spoof-b URL: {e}")
+
+    href = (link_elem.get("href") or "").strip()
+    return link_elem, (urljoin(source_url, href) if href else "")
+
+
 def parse_matches(soup: BeautifulSoup, source_url: str, default_date: str, source_tz: str | int = None) -> list:
     """Parses match elements from any YallaShoot-family schedule page."""
     match_elements = soup.select(".AY_Match, .match-container")
@@ -163,11 +185,9 @@ def parse_matches(soup: BeautifulSoup, source_url: str, default_date: str, sourc
         if not status_class:
             continue
 
-        link_elem = match.find("a", href=True)
+        link_elem, match_url = _extract_match_url(match, source_url)
         if not link_elem and status_class != "finished":
             continue
-
-        match_url = urljoin(source_url, link_elem["href"]) if link_elem else ""
         is_variant_2 = "match-container" in classes
         t1_name, t2_name, t1_orig_img, t2_orig_img, time_str = _extract_team_info(match, is_variant_2)
         date_str = _extract_match_date(match, link_elem, default_date)
